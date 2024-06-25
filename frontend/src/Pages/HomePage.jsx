@@ -1,25 +1,26 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-export const Home = () => {
-  const [chats, setchats] = useState([]);
- 
-  useEffect(() => {
-    fetchchats();
-  }, []);
+import { useState } from "react"
+import Login from "../components/auth/login"
+import Signup from "../components/auth/signup"
+import logo from "../main.jpg"
+export const Home = () =>{
 
-  return (
-    <div>
-      {chats.map((chat) => (
-        <div key={chat.id}> {/* Assuming each chat object has a unique 'id' */}
-          {chat.Name} {/* Use lowercase 'name' assuming this is the correct property */}
+  const [view, setview] = useState('login');
+  return <div >
+    <div className="flex flex-col ">
+      <div className="flex justify-center">
+          <img className=" h-20 w-20" src= {logo} alt="" />  
+      </div>
+      <div className="flex justify-center">
+        <div className="h-10 w-96 bg-gray-200 rounded-lg flex flex-row justify-around items-center">
+          <div className="h-7 w-32 hover:bg-gray-400 rounded-2xl flex items-center justify-center cursor-pointer" onClick={()=>setview('login')}>Login</div>
+          <div className="h-7 w-32 hover:bg-gray-400 rounded-2xl flex items-center justify-center cursor-pointer" onClick={()=>setview('signup')}>Signup</div>
         </div>
-      ))}
+      </div>
+      <div className="flex justify-center mt-10">
+         {view == 'login' ? <Login/> : <Signup/>}
+      </div>
     </div>
-  );
-};
-
-const fetchchats = async () => {
-  const { data } = await axios.get("http://localhost:5000/api/chats");
-  console.log(data.chats)
-  setchats(data.chats);
-};
+    
+    
+  </div>
+} 

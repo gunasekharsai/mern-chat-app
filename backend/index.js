@@ -1,23 +1,30 @@
 const express = require("express");
-const chats = require('./dummy')
 const dotenv = require("dotenv");
-const cors = require('cors')
+const cors = require('cors');
+const connectdb = require("./config/db");
+const userRoutes = require('./routes/userRoutes')
+const chatRoutes = require('./routes/chatRoutes')
+dotenv.config(); // Load environment variables
+connectdb();
+
 const app = express();
+
 app.use(cors());
-dotenv.config();
+app.use(express.json()); // Parse incoming JSON requests
 
-app.get('/',(req,res)=>{
-    res.send("api i s running")
-})
-app.get('/api/chats',(req,res) =>{
-    res.send({chats})
-})
-app.get('/api/chats/:id',(req,res)=>{
-    //res.send(req.params.id);
-    const singlechat = chats.find(c => c.id === req.params.id );
-    res.send(singlechat);
-})
+app.get("/", (req,res)=>{
+  res.send('api is running succeful');
+});
 
-const PORT = process.env.PORT || 5000
+app.use('/api/user',userRoutes)
+app.use('/api/chat',chatRoutes);
 
-app.listen(PORT, console.log("server started on port 5000"));
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, (err) => {
+  if (err) {
+    console.error('Failed to start server:', err);
+  } else {
+    console.log(`Server started on port ${PORT}`);
+  }
+});
