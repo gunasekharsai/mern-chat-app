@@ -34,7 +34,7 @@ const Login = () => {
             console.log(data);
             
             // Decode the token and store it in localStorage
-            localStorage.setItem('token', data.token);
+            localStorage.setItem('token', JSON.stringify(data));
 
             setLoading(false);
             navigate('/chats');

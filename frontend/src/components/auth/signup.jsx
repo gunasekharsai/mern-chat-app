@@ -42,7 +42,7 @@ const Signup = () => {
             const  {data} = await axios.post('http://localhost:3000/api/user',{name,email,password,pic},config);
             console.log(data);
             showToastMessage("registration succefull", "success");
-            localStorage.setItem('token', data.token);
+            localStorage.setItem('token', JSON.stringify(data));
 
             setLoading(false);
             

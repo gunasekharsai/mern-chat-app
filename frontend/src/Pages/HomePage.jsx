@@ -1,10 +1,20 @@
-import { useState } from "react"
-import Login from "../components/auth/login"
-import Signup from "../components/auth/signup"
-import logo from "../main.jpg"
-export const Home = () =>{
+import { useEffect, useState } from "react"
 
+import logo from "../main.jpg"
+import { useNavigate } from "react-router-dom"
+import Login from "../components/auth/login";
+import Signup from "../components/auth/signup";
+export const Home = () =>{
   const [view, setview] = useState('login');
+  const navigate = useNavigate();
+
+    useEffect(() => {
+        const userInfo = JSON.parse(localStorage.getItem("token"));
+        if (userInfo) {
+            navigate('/chats');
+        }
+    }, [navigate]);
+
   return <div >
     <div className="flex flex-col ">
       <div className="flex justify-center">
@@ -19,8 +29,6 @@ export const Home = () =>{
       <div className="flex justify-center mt-10">
          {view == 'login' ? <Login/> : <Signup/>}
       </div>
-    </div>
-    
-    
+    </div>                                
   </div>
 } 
