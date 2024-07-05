@@ -8,13 +8,12 @@ export const Chat = () => {
   const { user } = useChatState();
  
   return (
-    <div>
-        {user && <SideDrawer/>}
-        <div className="flex justify-between p-10">
-         { user && <MyChats/>}
-        {  user && <ChatBox/>}
-
-        </div>
+    <div className="flex flex-col h-screen">
+    {user && <SideDrawer />}
+    <div className="flex flex-grow overflow-auto">
+     { user &&  <MyChats />}
+     { user && <ChatBox />}
     </div>
+  </div>
   );
 };

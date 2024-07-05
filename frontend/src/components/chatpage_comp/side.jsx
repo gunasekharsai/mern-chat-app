@@ -68,7 +68,7 @@ export function DrawerDefault() {
   };
 
   return (
-    <>
+    <div>
       <div
         className="w-35 h-10 font-medium rounded-lg text-sm px-6 py-2.5 bg-gray-600 text-white shadow-sm hover:bg-gray-800"
         onClick={openDrawer}
@@ -124,6 +124,6 @@ export function DrawerDefault() {
           </div>
         )}
       </Drawer>
-    </>
+    </div>
   );
 }
