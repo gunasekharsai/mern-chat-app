@@ -4,22 +4,27 @@ import axios from "axios";
 import { getsender } from "../../config/getSender";
 
 const MyChats = () => {
-  const { chats, setchats, selectedchat, setselectedchat, user } =
-    useChatState();
+  const {
+    chats,
+    setchats,
+    selectedchat,
+    setselectedchat,
+    Notification,
+    messages,
+  } = useChatState();
   const [loggeduser, setloggeduser] = useState();
 
-  const fetchchats = async () => {
+  const fetchchats = async (token) => {
     try {
       const config = {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${token}`,
         },
       };
       const { data } = await axios.get(
         "http://localhost:3000/api/chat",
         config
       );
-      console.log(data);
       setchats(data);
     } catch (err) {
       alert("Failed to load chats");
@@ -27,12 +32,14 @@ const MyChats = () => {
   };
 
   useEffect(() => {
-    setloggeduser(JSON.parse(localStorage.getItem("token")));
-    fetchchats();
-  }, []);
-
+    const loggedUser = JSON.parse(localStorage.getItem("token"));
+    if (loggedUser) {
+      setloggeduser(loggedUser);
+      fetchchats(loggedUser.token);
+    }
+  }, [messages]);
   return (
-    <div className="flex flex-col w-1/4 h-auto m-4 mb-4 rounded-2xl border border-gray-600">
+    <div className="flex flex-col w-full h-auto m-4 mb-4 rounded-2xl border border-gray-600 md:full">
       <div className="p-4 flex-grow overflow-y-auto">
         <h1 className="text-xl font-semibold mb-4">My Chats</h1>
         {chats.length > 0 ? (
@@ -51,9 +58,16 @@ const MyChats = () => {
               </div>
               <div className="text-sm">
                 <strong>Last message:</strong>{" "}
-                {chat.latestMessage
-                  ? chat.latestMessage.content
+                {chat.latestmessage
+                  ? chat.latestmessage.content
                   : "No messages yet"}
+              </div>
+              <div className="">
+                {countUnreadMessages(Notification, chat._id) > 0 && (
+                  <div className="">
+                    {countUnreadMessages(Notification, chat._id)}
+                  </div>
+                )}
               </div>
             </div>
           ))
@@ -61,9 +75,13 @@ const MyChats = () => {
           <p>No chats found</p>
         )}
       </div>
-      <div className="h-4"></div> {/* Adding this div to provide a bottom margin */}
     </div>
   );
 };
 
+const countUnreadMessages = (notifications, chatId) => {
+  return notifications.filter(
+    (notification) => notification.chat._id === chatId
+  ).length;
+};
 export default MyChats;

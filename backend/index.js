@@ -32,6 +32,7 @@ const io = new Server(httpserver, {
   },
 });
 
+
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
   socket.on("setup", (userData) => {
@@ -44,8 +45,8 @@ io.on("connection", (socket) => {
     console.log('User Joined Room:', room);
   });
 
-  socket.on('typing', (room) => socket.in(room).emit("typing"));
-  socket.on("stop typing" , (room) => socket.in(room).emit("stop typing"))
+  socket.on('typing', (room) => socket.to(room).emit("typing"));
+  socket.on("stop typing" , (room) => socket.to(room).emit("stop typing"))
 
   socket.on('new message', (newMessageReceived) => {
     const chat = newMessageReceived.chat;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useChatState } from "../../Context/ChatProvider";
 import { getsender } from "../../config/getSender";
 import axios from "axios";
@@ -8,13 +8,30 @@ const ENDPOINT = "http://localhost:3000";
 let socket, selectedChatCompare;
 
 const ChatBox = () => {
-  const { selectedchat, user } = useChatState();
+  const {
+    selectedchat,
+    user,
+    setselectedchat,
+    Notification,
+    setNotification,
+    messages,
+    setMessages,
+  } = useChatState();
   const [newmessage, setnewmessage] = useState("");
-  const [messages, setMessages] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
-  const [isTyping, setisTyping] = useState(false)
+  const [isTyping, setisTyping] = useState(false);
+
+  const messageendref = useRef(null);
+  const scrollToButton = () => {
+    messageendref.current?.scrollIntoView({ behavior: "auto" });
+  };
+  useEffect(() => {
+    scrollToButton();
+  }, [messages]);
+
   const fetchChats = async () => {
     if (!selectedchat) return;
 
@@ -43,19 +60,16 @@ const ChatBox = () => {
     socket = io(ENDPOINT);
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
-    socket.on('typing', () => setTyping(true));
-    socket.on('stop typing', ()=> setTyping(false));
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [user]);
+    socket.on("typing", () => setisTyping(true));
+    socket.on("stop typing", () => setisTyping(false));
+  }, []);
 
   useEffect(() => {
     fetchChats();
     selectedChatCompare = selectedchat;
   }, [selectedchat]);
 
+  console.log(Notification, "--------");
   useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
       if (
@@ -63,6 +77,10 @@ const ChatBox = () => {
         selectedChatCompare._id !== newMessageReceived.chat._id
       ) {
         // Notification logic can be added here
+        if (!Notification.includes(newMessageReceived)) {
+          setNotification([newMessageReceived, ...Notification]);
+          fetchChats();
+        }
       } else {
         setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
       }
@@ -71,7 +89,7 @@ const ChatBox = () => {
     return () => {
       socket.off("message received");
     };
-  }, []);
+  }, [messages]);
 
   const messagesender = async () => {
     if (!newmessage || !selectedchat) return;
@@ -103,6 +121,7 @@ const ChatBox = () => {
 
   const handlekeydown = (event) => {
     if (event.key === "Enter" && newmessage) {
+      socket.emit("stop typing", selectedchat._id);
       messagesender();
     }
   };
@@ -110,42 +129,58 @@ const ChatBox = () => {
   const typinghandler = (e) => {
     setnewmessage(e.target.value);
     //typing indicator logic
-    if(!socketConnected) return;
-    if(!typing){
+    if (!socketConnected) return;
+    if (!typing) {
       setTyping(true);
-      socket.emit('typing', selectedchat._id)
+      socket.emit("typing", selectedchat._id);
     }
-    let lastTypingtime = new Date().getTime()
-    var timerLength = 3000;
-    setTimeout(() =>{
+    
+    let lastTypingtime = new Date().getTime();
+    var timerLength = 2000;
+    setTimeout(() => {
       var timenow = new Date().getTime();
-      var timediff = timenow-lastTypingtime;
-      if(timediff>=timerLength && typing){
-        socket.emit('stoptyping', selectedchat._id);
+      var timediff = timenow - lastTypingtime;
+      if (timediff >= timerLength && typing) {
+        socket.emit("stop typing", selectedchat._id);
         setTyping(false);
       }
-    },timerLength)
+    }, timerLength);
   };
 
   return (
-    <div className="m-4 8 rounded-xl h-auto w-full flex flex-col border border-gray-600 bg-gray-200">
+    <div className="m-4 rounded-xl h-auto w-full flex flex-col justify-between border border-gray-600 bg-gray-200">
       {selectedchat ? (
-        <>
-          <div className="pl-3 pt-2 pb-2 text-xl font-bold">
-            {getsender(user, selectedchat.users)}
+        <div className="flex flex-col h-full">
+          <div className="flex flex-row">
+            <div className="pl-3 pb-2  flex felx-col ">
+              <div
+                className="pr-3 pt-3 hover:cursor-pointer"
+                onClick={() => {
+                  setselectedchat();
+                }}
+              >
+                <span class="material-symbols-outlined">arrow_back</span>
+              </div>
+              <div className=" text-xl font-bold font-bold pt-2">
+                {getsender(user, selectedchat.users)}
+              </div>
+              <div className="pl-4 text-md pt-3">
+                {isTyping ? <div>typing...</div> : <></>}
+              </div>
+            </div>
           </div>
-          <div className="flex-grow overflow-y-auto bg-white p-4 rounded-lg mb-4" style={{ maxHeight: '70vh' }}>
+          <div className="flex-grow overflow-y-auto bg-white rounded-xl m-3">
             {messages.map((m) => (
               <div
                 key={m._id}
-                className={`flex mb-2 ${
+                className={`flex m-3 ${
                   m.sender._id === user._id ? "justify-end" : "justify-start"
                 }`}
               >
                 <div
                   className={`max-w-xs px-4 py-2 rounded-lg ${
                     m.sender._id === user._id
-                      ? "bg-blue-500 text-white self-end"
+                      ? "bg-gray-600 text-white self-end"
                       : "bg-gray-300 text-gray-800 self-start"
                   }`}
                 >
@@ -153,30 +188,30 @@ const ChatBox = () => {
                 </div>
               </div>
             ))}
+            <div ref={messageendref} />
           </div>
-        </>
+          <div className="flex mt-auto">
+            <input
+              type="text"
+              className="flex-grow p-2 rounded-l-lg border border-gray-300"
+              placeholder="Type your message here..."
+              onChange={typinghandler}
+              onKeyDown={handlekeydown}
+              value={newmessage}
+            />
+            <button
+              className="p-2 bg-gray-800 text-white rounded-r-lg"
+              onClick={messagesender}
+            >
+              Send
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="flex justify-center text-2xl inline-block align-middle">
           No chat selected
         </div>
       )}
-      <div className="flex mt-auto">
-        {typing?<div>laoding...</div> : <> </>}
-        <input
-          type="text"
-          className="flex-grow p-2 rounded-l-lg border border-gray-300"
-          placeholder="Type your message here..."
-          onChange={typinghandler}
-          onKeyDown={handlekeydown}
-          value={newmessage}
-        />
-        <button
-          className="p-2 bg-blue-500 text-white rounded-r-lg"
-          onClick={messagesender}
-        >
-          Send
-        </button>
-      </div>
     </div>
   );
 };
