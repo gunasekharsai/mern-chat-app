@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Profilecomp from "./Profilecomp";
 import { useNavigate } from "react-router-dom";
 import { DrawerDefault } from "./side";
-
+import logo from '../../main.jpg'
 const SideDrawer = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -54,10 +54,13 @@ const SideDrawer = () => {
       <div className="align-middle">
         <DrawerDefault />
       </div>
+      <div>
+        <img className="h-10 w-10" src={logo} alt="" />
+      </div>
       <div className="relative inline-block text-left">
         <button
           type="button"
-          className="w-35 h-10 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-gray-600 text-white shadow-sm hover:bg-gray-800"
+          className=" inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-gray-700 text-white shadow-sm hover:bg-gray-800"
           id="menu-button"
           aria-expanded="true"
           aria-haspopup="true"
@@ -69,7 +72,7 @@ const SideDrawer = () => {
               dropdownOpen ? "rotate-180" : "rotate-0"
             }`}
             xmlns="http://www.w3.org/2000/svg"
-            width="10"
+            width="20"
             height="10"
             viewBox="0 0 24 24"
             fill="none"
@@ -91,6 +94,9 @@ const SideDrawer = () => {
             <div className="py-1" role="none">
               <div className="cursor-pointer" role="menuitem">
                 <Profilecomp />
+              </div>
+              <div>
+                <img src="{logo}" alt="" />
               </div>
               <div
                 className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 cursor-pointer"

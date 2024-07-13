@@ -31,7 +31,7 @@ const io = new Server(httpserver, {
     origin: "http://localhost:5173",
   },
 });
-
+app.set('io', io);
 
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");

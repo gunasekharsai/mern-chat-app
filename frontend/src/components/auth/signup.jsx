@@ -57,26 +57,7 @@ const Signup = () => {
       setLoading(false);
     }
   };
-  const postDetails = (imge) => {
-    setLoading(true);
-    const formdata = new FormData();
-    formdata.append("file", imge);
-    formdata.append("upload_preset", "chat-app");
-    axios
-      .post("https://api.cloudinary.com/v1_1/dzvl9czgv/image/upload ", formdata)
-      .then((res) => {
-        return res.json;
-      })
-      .then((data) => {
-        setpic(data.url.tostring());
-        console.log(data.url.tostring());
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-      });
-  };
+  
   const showToastMessage = (message, type) => {
     setToastMessage(message);
     setToastType(type);
@@ -181,20 +162,7 @@ const Signup = () => {
           </button>
         </div>
       </div>
-      <div className="mt-4">
-        <label
-          className="block mb-2 text-sm font-medium text-gray-900"
-          for="file_input"
-        >
-          Upload file
-        </label>
-        <input
-          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 "
-          id="file_input"
-          type="file"
-          onChange={(e) => postDetails(e.target.files[0])}
-        />
-      </div>
+     
 
       <div className="flex justify-center mt-4">
         <button
