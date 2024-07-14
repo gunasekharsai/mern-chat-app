@@ -1,3 +1,7 @@
+
+
+https://github.com/user-attachments/assets/6443b9d1-aa5d-4612-9966-725214dc738e
+
 # how to start
 1) first clone the repo using git clone https://github.com/gunasekharsai/mern-chat-app.git
 
